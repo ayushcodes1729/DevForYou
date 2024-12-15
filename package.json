@@ -1,0 +1,20 @@
+{
+  "name": "d4u",
+  "version": "1.0.0",
+  "description": "A platform to connect devs for growth and friendship",
+  "main": "index.js",
+  "scripts": {
+    "start" : "node src/app.js",
+    "dev" : "nodemon src/app.js"
+  },
+  "keywords": [
+    "developers",
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Ayush Kumar",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
