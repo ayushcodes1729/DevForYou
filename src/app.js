@@ -1,19 +1,22 @@
 const express = require("express");
-const {adminAuth, userAuth} = require("./middlewares/auth")
+
 
 const app = express();
 
-app.use('/admin', adminAuth);
-app.use('/user', userAuth);
+app.get("/user", (req,res)=>{
+    // try {
+    //     //logic of fetching data from db
+        throw new Error("jiordnaeifj");
+    // } catch (error) {
+    //     console.log(error);
+    //     res.status(500).send("Something went wrong");
+    // }
+});
 
-app.get("/admin/:adminID", (req,res)=>{
-    console.log(req.params);
-    res.send(req.params);
-})
-
-app.get("/user/:userID", (req , res)=> {
-    console.log(req.params);
-    res.send(req.params);
+app.use('/', (err, req, res, next)=>{
+    if(err){
+        res.status(500).send("Error occured contact support team");
+    }
 })
 
 app.listen(3000, () => {
