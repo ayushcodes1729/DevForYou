@@ -1,16 +1,13 @@
 const express = require("express");
-const connectDB = require("./config/database")
-const User = require("./models/user")
+const connectDB = require("./config/database");
+const User = require("./models/user");
 
 const app = express();
 
-app.post("/signup", async (req,res)=>{
-    const userObj = {
-        firstName: "Aditya",
-        lastName: "Kumar",
-        emailId: "ayushtiwari0803@gmail.com",
-        password: "ayush@2004"
-    }
+app.use(express.json());
+
+app.post("/signup", async (req, res) => {
+    const userObj = req.body;
 
     const user = new User(userObj); //creating a new instance of the user model
 
@@ -18,7 +15,62 @@ app.post("/signup", async (req,res)=>{
         await user.save();
         res.send("User Added Successfully");
     } catch (error) {
-        res.status(400).send("Error occured while saving the data:", error.message)
+        res.status(400).send("Error occured while saving the data:", error.message);
+    }
+});
+
+app.get("/user", async (req, res) => {
+    const userEmailId = req.query.emailId;
+    // console.log(userEmailId)
+    try {
+        const users = await User.findById("67628352cf1ba682ea6f1b34");
+        // console.log(users);
+        if (users.length === 0) {
+            res.status(404).send("User not found");
+        } else {
+            res.send(users);
+        }
+    } catch (error) {
+        // console.log(error);
+        res.status(400).send("Something Went Wrong");
+    }
+});
+
+app.get("/feed", async (req, res) => {
+    try {
+        const feed = await User.find({});
+        if (feed.length === 0) {
+            res.status(404).send("Feed Not found");
+        } else {
+            res.send(feed);
+        }
+    } catch (error) {
+        res.status(400).send("Something went wrong");
+    }
+});
+
+app.delete("/user", async (req, res) => {
+    const userName = req.body.firstName;
+    try {
+        const user = await User.deleteOne({firstName : userName });
+        res.send("User deleted successfully");
+    } catch (error) {
+        res.status(400).send("Something went wrong");
+    }
+});
+
+app.patch("/user", async (req,res)=>{
+    const emailId = req.query.emailId;
+    const data = req.body;
+
+    try {
+        const user = await User.findOneAndUpdate({emailId : emailId} , data, {
+            returnDocument : "after"
+        })
+        console.log(user);
+        res.send("User updated successfully");
+    } catch (error) {
+        res.status(400).send("Something went wrong");
     }
 })
 connectDB()
@@ -30,5 +82,4 @@ connectDB()
     })
     .catch((err) => {
         console.err("Database cannot be connected");
-    })
-
+    });
