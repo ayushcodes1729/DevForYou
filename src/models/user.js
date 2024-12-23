@@ -1,15 +1,87 @@
 const mongoose = require("mongoose")
+const validator = require("validator")
 const { Schema } = mongoose;
 
-const userSchema = new Schema({
-    firstName: String, // String is shorthand for {type: String}
-    lastName: String,
-    emailId: String,
-    password: String,
-    age: Number,
-    gender: String,
-});
+const userSchema = new Schema(
+    {
+        firstName: {
+            type: String,
+            required: true,
+            trim: true,
+            maxLength: 50,
+        }, // String is shorthand for {type: String}
+        lastName: {
+            type: String,
+            trim: true,
+            maxLength: 50,
+        },
+        emailId: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+            lowercase: true,
+            maxLength: 80,
+            immutable: true,
+            validate(value){
+                if (!validator.isEmail(value)){
+                    throw new Error("Invalid E-mail Id: " + value)
+                }
+            }
+        },
+        password: {
+            type: String,
+            required: true,
+            minLength: 6,
+            maxLength: 12,
+            validate(value){
+                if (!validator.isStrongPassword(value)){
+                    throw new Error("Please Enter a strong password: "+ value);
+                }
+            }
+        },
+        about: {
+            type : String,
+            trim: true,
+            maxLength: 100,
+            default: "Hey I am a nerdy geek"
+        },
+        age: {
+            type: Number,
+            max: 100,
+            min: 1,
+        },
+        gender: {
+            type: String,
+            enum: {
+                values: ['M', 'F', 'Others'],
+                message: '{VALUE} is not supported'
+            }
+        },
+        photoUrl: {
+            type: String,
+            default: "https://frappecloud.com/files/user.png",
+            lowercase: true,
+            validate(value){
+                if (!validator.isURL(value)){
+                    throw new Error("Invalid photo URL: " + value)
+                }
+            }
+        },
+        skills:{
+            type: [String],
+            required: true,
+            enum: {
+                values: ['Web', 'Android', 'Web3', 'Reactjs', 'Expressjs', 'MongoDb', 'Nodejs', 'Javascript', 'HTML', 'CSS', 'Nextjs', 'TypeScript', 'Git', 'Vim', 'Neovim', 'Linux', 'Docker', 'Kotlin', 'Android Studios'],
+                message: '{VALUE} is not supported'
+            },
+        }
+    },
+    {
+        timestamps: true
+    },
+);
 
 const User = mongoose.model("User", userSchema);
 
-module.exports =User;
+module.exports = User;

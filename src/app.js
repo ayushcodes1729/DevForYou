@@ -9,13 +9,20 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
     const userObj = req.body;
 
-    const user = new User(userObj); //creating a new instance of the user model
 
     try {
+        const existingUser = await User.findOne({ emailId: userObj.emailId });
+        if (existingUser) {
+            throw new Error("E-mail already in-use")
+        }
+        if (userObj.skills.length > 10) {
+            throw new Error("Only 10 skills can be added")
+        }
+        const user = new User(userObj); //creating a new instance of the user model
         await user.save();
         res.send("User Added Successfully");
     } catch (error) {
-        res.status(400).send("Error occured while saving the data:", error.message);
+        res.status(400).send("Error occured while saving the data:" + error.message);
     }
 });
 
@@ -52,27 +59,41 @@ app.get("/feed", async (req, res) => {
 app.delete("/user", async (req, res) => {
     const userName = req.body.firstName;
     try {
-        const user = await User.deleteOne({firstName : userName });
+        const user = await User.deleteOne({ firstName: userName });
         res.send("User deleted successfully");
     } catch (error) {
         res.status(400).send("Something went wrong");
     }
 });
 
-app.patch("/user", async (req,res)=>{
+app.patch("/user", async (req, res) => {
     const emailId = req.query.emailId;
     const data = req.body;
 
     try {
-        const user = await User.findOneAndUpdate({emailId : emailId} , data, {
-            returnDocument : "after"
-        })
-        console.log(user);
+        const NOTALLOWEDUPDATES = ["emailId"];
+        const isUpdateNotAllowed = Object.keys(data).some((k) => NOTALLOWEDUPDATES.includes(k));
+
+        console.log(isUpdateNotAllowed)
+        if (isUpdateNotAllowed) {
+            throw new Error("Update Not Allowed")
+        }
+        if (data?.skills && data.skills.length > 10) {
+            throw new Error("Only 10 skills can be added");
+        }        
+        const user = await User.findOneAndUpdate(
+            { emailId: emailId },
+            data,
+            { returnDocument: "after", runValidators: true }
+        );
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
         res.send("User updated successfully");
     } catch (error) {
-        res.status(400).send("Something went wrong");
+        res.status(400).send("Error: " + error.message);
     }
-})
+});
 connectDB()
     .then(() => {
         console.log("Database Connection established...");
@@ -81,5 +102,5 @@ connectDB()
         });
     })
     .catch((err) => {
-        console.err("Database cannot be connected");
+        console.error("Database cannot be connected");
     });
