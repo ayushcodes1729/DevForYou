@@ -1,6 +1,9 @@
 const express = require("express");
 const connectDB = require("./config/database");
+require('dotenv').config();
+
 const User = require("./models/user");
+const PORT = process.env.PORT
 
 const app = express();
 
@@ -97,8 +100,8 @@ app.patch("/user", async (req, res) => {
 connectDB()
     .then(() => {
         console.log("Database Connection established...");
-        app.listen(3000, () => {
-            console.log("Server listening successfully on port 3000...");
+        app.listen(PORT, () => {
+            console.log("Server listening successfully on port", PORT+"...");
         });
     })
     .catch((err) => {
