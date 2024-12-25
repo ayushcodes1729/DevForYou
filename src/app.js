@@ -1,27 +1,34 @@
 const express = require("express");
-const connectDB = require("./config/database");
 require('dotenv').config();
+const bcrypt = require('bcrypt');
 
+const connectDB = require("./config/database");
 const User = require("./models/user");
 const PORT = process.env.PORT
-
 const app = express();
+const { validatorSignupData } = require("./utils/validation")
 
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
     const userObj = req.body;
+    const {firstName, lastName, emailId, password} = req.body;
 
 
     try {
-        const existingUser = await User.findOne({ emailId: userObj.emailId });
+        validatorSignupData(req);
+
+        const passwordHash = await bcrypt.hash(password , 10);
+        const existingUser = await User.findOne({ emailId: emailId });
         if (existingUser) {
-            throw new Error("E-mail already in-use")
+            throw new Error("E-mail already in-use");
         }
-        if (userObj.skills.length > 10) {
-            throw new Error("Only 10 skills can be added")
-        }
-        const user = new User(userObj); //creating a new instance of the user model
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password: passwordHash
+        }); //creating a new instance of the user model
         await user.save();
         res.send("User Added Successfully");
     } catch (error) {
@@ -83,7 +90,7 @@ app.patch("/user", async (req, res) => {
         }
         if (data?.skills && data.skills.length > 10) {
             throw new Error("Only 10 skills can be added");
-        }        
+        }
         const user = await User.findOneAndUpdate(
             { emailId: emailId },
             data,
@@ -101,7 +108,7 @@ connectDB()
     .then(() => {
         console.log("Database Connection established...");
         app.listen(PORT, () => {
-            console.log("Server listening successfully on port", PORT+"...");
+            console.log("Server listening successfully on port", PORT + "...");
         });
     })
     .catch((err) => {
