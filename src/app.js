@@ -6,7 +6,8 @@ const connectDB = require("./config/database");
 const User = require("./models/user");
 const PORT = process.env.PORT
 const app = express();
-const { validatorSignupData } = require("./utils/validation")
+const { validatorSignupData } = require("./utils/validation");
+const { default: isEmail } = require("validator/lib/isEmail");
 
 app.use(express.json());
 
@@ -35,6 +36,24 @@ app.post("/signup", async (req, res) => {
         res.status(400).send("Error occured while saving the data:" + error.message);
     }
 });
+
+app.post("/login", async (req, res)=>{
+    try {
+        const {emailId, password} = req.body;
+        const user = await User.findOne({emailId : emailId});
+        if (!user || !isEmail(emailId)){
+            throw new Error("Invalid Credentials");
+        }
+        authenticatePass = await bcrypt.compare(password, user.password)
+        if (!authenticatePass){
+            throw new Error("Invalid Credentials");
+        }else{
+            res.send("LogIn Successful!!");
+        }
+    } catch (error) {
+        res.status(400).send("Error:" + error.message);
+    }
+})
 
 app.get("/user", async (req, res) => {
     const userEmailId = req.query.emailId;
