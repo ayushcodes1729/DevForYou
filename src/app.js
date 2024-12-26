@@ -1,15 +1,19 @@
 const express = require("express");
 require('dotenv').config();
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const PORT = process.env.PORT
+const privateKey = process.env.PRIVATE_KEY
 const app = express();
 const { validatorSignupData } = require("./utils/validation");
 const { default: isEmail } = require("validator/lib/isEmail");
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
     const userObj = req.body;
@@ -48,6 +52,8 @@ app.post("/login", async (req, res)=>{
         if (!authenticatePass){
             throw new Error("Invalid Credentials");
         }else{
+            const token = await jwt.sign({_id : user._id}, privateKey);
+            res.cookie('token', token);
             res.send("LogIn Successful!!");
         }
     } catch (error) {
@@ -70,6 +76,29 @@ app.get("/user", async (req, res) => {
         // console.log(error);
         res.status(400).send("Something Went Wrong");
     }
+});
+
+app.get("/profile", async (req,res) =>{
+    try {
+        const cookie = req.cookies;
+        
+        const {token} = cookie;
+        if (!token){
+            throw new Error("Invalid Token");
+        }
+
+        const decodeMessage = await jwt.verify(token , privateKey);
+        const {_id} = decodeMessage;
+
+        const user = await User.findById(_id);
+        if(!user){
+            throw new Error("User doesn't exists");
+        }
+        res.send(user);
+    } catch (error) {
+        res.status(400).send("Error:" + error.message);
+    }
+
 });
 
 app.get("/feed", async (req, res) => {
