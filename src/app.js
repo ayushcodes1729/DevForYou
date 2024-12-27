@@ -11,6 +11,7 @@ const privateKey = process.env.PRIVATE_KEY
 const app = express();
 const { validatorSignupData } = require("./utils/validation");
 const { default: isEmail } = require("validator/lib/isEmail");
+const {userAuth} = require("./middlewares/auth");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -48,12 +49,18 @@ app.post("/login", async (req, res)=>{
         if (!user || !isEmail(emailId)){
             throw new Error("Invalid Credentials");
         }
-        authenticatePass = await bcrypt.compare(password, user.password)
+        authenticatePass = await user.validatePassword(password);
+
         if (!authenticatePass){
             throw new Error("Invalid Credentials");
         }else{
-            const token = await jwt.sign({_id : user._id}, privateKey);
-            res.cookie('token', token);
+            const token = await user.getJWT();
+            res.cookie(
+                'token', token,
+                {
+                    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                }
+            );
             res.send("LogIn Successful!!");
         }
     } catch (error) {
@@ -61,39 +68,9 @@ app.post("/login", async (req, res)=>{
     }
 })
 
-app.get("/user", async (req, res) => {
-    const userEmailId = req.query.emailId;
-    // console.log(userEmailId)
+app.get("/profile", userAuth, async (req,res) =>{
     try {
-        const users = await User.findById("67628352cf1ba682ea6f1b34");
-        // console.log(users);
-        if (users.length === 0) {
-            res.status(404).send("User not found");
-        } else {
-            res.send(users);
-        }
-    } catch (error) {
-        // console.log(error);
-        res.status(400).send("Something Went Wrong");
-    }
-});
-
-app.get("/profile", async (req,res) =>{
-    try {
-        const cookie = req.cookies;
-        
-        const {token} = cookie;
-        if (!token){
-            throw new Error("Invalid Token");
-        }
-
-        const decodeMessage = await jwt.verify(token , privateKey);
-        const {_id} = decodeMessage;
-
-        const user = await User.findById(_id);
-        if(!user){
-            throw new Error("User doesn't exists");
-        }
+        const user = req.user;
         res.send(user);
     } catch (error) {
         res.status(400).send("Error:" + error.message);
@@ -101,57 +78,11 @@ app.get("/profile", async (req,res) =>{
 
 });
 
-app.get("/feed", async (req, res) => {
-    try {
-        const feed = await User.find({});
-        if (feed.length === 0) {
-            res.status(404).send("Feed Not found");
-        } else {
-            res.send(feed);
-        }
-    } catch (error) {
-        res.status(400).send("Something went wrong");
-    }
-});
-
-app.delete("/user", async (req, res) => {
-    const userName = req.body.firstName;
-    try {
-        const user = await User.deleteOne({ firstName: userName });
-        res.send("User deleted successfully");
-    } catch (error) {
-        res.status(400).send("Something went wrong");
-    }
-});
-
-app.patch("/user", async (req, res) => {
-    const emailId = req.query.emailId;
-    const data = req.body;
-
-    try {
-        const NOTALLOWEDUPDATES = ["emailId"];
-        const isUpdateNotAllowed = Object.keys(data).some((k) => NOTALLOWEDUPDATES.includes(k));
-
-        console.log(isUpdateNotAllowed)
-        if (isUpdateNotAllowed) {
-            throw new Error("Update Not Allowed")
-        }
-        if (data?.skills && data.skills.length > 10) {
-            throw new Error("Only 10 skills can be added");
-        }
-        const user = await User.findOneAndUpdate(
-            { emailId: emailId },
-            data,
-            { returnDocument: "after", runValidators: true }
-        );
-        if (!user) {
-            return res.status(404).send("User not found");
-        }
-        res.send("User updated successfully");
-    } catch (error) {
-        res.status(400).send("Error: " + error.message);
-    }
-});
+app.post("/sendConnection", userAuth, async (req,res)=>{
+    //Logic to send connection request
+    const user = req.user;
+    res.send("Connection Request Sent! by " + user.firstName );
+})
 connectDB()
     .then(() => {
         console.log("Database Connection established...");
