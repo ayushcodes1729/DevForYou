@@ -9,6 +9,12 @@ const  validatorSignupData =(req)=>{
     else if (!validator.isStrongPassword(password)) throw new Error("Enter a strong password") ;
 }
 
+const validatorUpdateProfile = (req) => {
+    const allowedUpdateFields = ["firstName", "lastName", "about", "age", "gender", "photoUrl", "skills"];
+    const isUpdateAllowed = Object.keys(req.body).every((field)=> allowedUpdateFields.includes(field));
+    return isUpdateAllowed;
+}
 module.exports = {
-    validatorSignupData
+    validatorSignupData,
+    validatorUpdateProfile
 }

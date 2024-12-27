@@ -5,7 +5,7 @@
  - POST - /login
  - POST - /logout
 
-## profilw
+## profile
  - GET - /profile/view
  - PATCH - /profile/edit
  - PATCH - /profile/password
