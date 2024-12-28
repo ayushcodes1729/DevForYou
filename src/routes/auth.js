@@ -40,7 +40,7 @@ authRouter.post("/login", async (req, res) => {
         if (!user || !isEmail(emailId)) {
             throw new Error("Invalid Credentials");
         }
-        authenticatePass = await user.validatePassword(password);
+        const authenticatePass = await user.validatePassword(password);
 
         if (!authenticatePass) {
             throw new Error("Invalid Credentials");

@@ -77,7 +77,7 @@ const userSchema = new Schema(
             type: [String],
             required: true,
             enum: {
-                values: ['Web', 'Android', 'Web3', 'Reactjs', 'Expressjs', 'MongoDb', 'Nodejs', 'Javascript', 'HTML', 'CSS', 'Nextjs', 'TypeScript', 'Git', 'Vim', 'Neovim', 'Linux', 'Docker', 'Kotlin', 'Android Studios'],
+                values: ['Web', 'Android', 'Web3', 'Reactjs', 'Expressjs', 'MongoDb', 'Nodejs', 'Javascript', 'HTML', 'CSS', 'Nextjs', 'Typescript', 'Git', 'Vim', 'Neovim', 'Linux', 'Docker', 'Kotlin', 'Android Studios'],
                 message: '{VALUE} is not supported'
             },
         }
