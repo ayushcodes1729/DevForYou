@@ -10,11 +10,9 @@
  - PATCH - /profile/edit
  - PATCH - /profile/password
 
-## connectionRequest
- - POST -/sendConnection/interested/:requestId
- - POST -/sendConnection/ignored/:requestId
- - POST -/reviewRequest/accept/:requestId
- - POST -/reviewRequest/reject/:requestId
+## request
+ - POST -/request/send/:status/:requestId
+ - POST -/request/review/:status/:requestId
 
 ## userRouter
  - GET - /user/feed
