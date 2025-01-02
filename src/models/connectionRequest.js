@@ -10,14 +10,17 @@ const connectionRequestSchema = new Schema(
             ref : "User"
         },
         toUserId : {
-            type : mongoose.Types.ObjectId
+            type : mongoose.Types.ObjectId,
+            required: true,
+            ref: "User"
         },
         status : {
             type : String,
             enum : {
                 values: ["interested", "ignored", "accepted", "rejected"],
                 message: '{VALUE} status type is not allowed' 
-            }
+            },
+            required: true
         }
     },
     { timestamps : true}
