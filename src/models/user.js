@@ -15,7 +15,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             trim: true,
-            maxLength: 50,
+            maxLength: 10,
         }, // String is shorthand for {type: String}
         lastName: {
             type: String,
@@ -48,7 +48,7 @@ const userSchema = new Schema(
         about: {
             type : String,
             trim: true,
-            maxLength: 100,
+            maxLength: 150,
             default: "Hey I am a nerdy geek"
         },
         age: {

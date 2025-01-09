@@ -72,6 +72,7 @@ userRouter.get("/user/feed", userAuth, async (req, res)=> {
         const feed = await User.find({
             $and : [
                 {_id : {$nin : Array.from(hiddenUsersFromFeed)}},
+                {_id : {$ne : loggedinUser._id}}
             ]
         }).select(USER_PUBLIC_DATA).skip(skip).limit(limit)
         res.json(feed);

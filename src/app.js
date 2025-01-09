@@ -8,8 +8,12 @@ const User = require("./models/user");
 const PORT = process.env.PORT
 const privateKey = process.env.PRIVATE_KEY
 const app = express();
-const {userAuth} = require("./middlewares/auth");
+const cors = require("cors")
 
+app.use(cors({
+    origin : "http://localhost:5173",
+    credentials : true,
+}))
 app.use(express.json());
 app.use(cookieParser());
 
