@@ -30,7 +30,13 @@ app.use("/api", requestRouter);
 app.use("/", userRouter);
 
 app.get("/", (req, res) => {
-  res.send("Server is running!");
+  try {
+    console.log("Everything is ok");
+    res.send("Server is running!");
+  } catch (error) {
+    console.log(error);
+    res.status(404).send("Not found")
+  }
 });
 
 connectDB()
