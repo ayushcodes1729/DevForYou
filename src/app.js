@@ -12,7 +12,8 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "https://app.dev4u.live/",
+    origin: "https://app.dev4u.live",
+    methods: "GET,POST,PUT,DELETE,PATCH",
     credentials: true,
   })
 );
