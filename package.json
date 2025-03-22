@@ -2,7 +2,7 @@
   "name": "d4u",
   "version": "1.0.0",
   "description": "A platform to connect devs for growth and friendship",
-  "main": "index.js",
+  "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"
